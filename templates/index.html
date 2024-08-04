@@ -1,0 +1,59 @@
+{% extends "layout.html" %} {% block title %} Home {% endblock %} {% block
+content %} Hello {{session["user_name"]}} 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+</head>
+<body>
+    <h1>Weather App</h1>
+    <h1>Current Weather </h1>
+    <button id="get-location-btn">Get My Location</button>
+    <div id="weather-info">
+        {{ weather }}
+    </div>
+<div>
+  
+</div>
+    <script>
+        document.getElementById('get-location-btn').addEventListener('click', () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showWeather);
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        });
+        function showWeather(position) {
+    const latitude = position.coords.latitude;
+    const longitude = position.coords.longitude;
+
+    fetch('/weather', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            latitude: latitude,
+            longitude: longitude
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        let weatherInfo = '';
+        for (const [key, value] of Object.entries(data)) {
+            weatherInfo += `<p>${key}: ${value}</p>`;
+        }
+        document.getElementById('weather-info').innerHTML = weatherInfo;
+    })
+    .catch(error => {
+        console.error('Error fetching weather data:', error);
+        document.getElementById('weather-info').innerHTML = 'Failed to fetch weather data.';
+    });
+
+        }
+    </script>
+</body>
+</html>
+{% endblock %}
